@@ -1,0 +1,41 @@
+version: '3'
+services:
+  server:
+    build: ./server
+    ports:
+      - 3010:3000
+    depends_on:
+      - db
+    volumes:
+      - ./server:/app:cached
+    environment:
+      MYSQL_DATABASE: vuetify_demo_development
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+  private-web:
+    build: ./private-web
+    volumes:
+      - ./private-web:/app:cached
+    ports:
+     - "15000:5000"
+    depends_on:
+      - server
+    environment:
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 5000
+  db:
+    image: mysql:5.7
+    container_name: db
+    ports:
+      - 3310:3306
+    volumes:
+      - ./server/sql:/docker-entrypoint-initdb.d
+      - ./server/tmp/mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: vuetify_demo_development
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --max_connections=10000
