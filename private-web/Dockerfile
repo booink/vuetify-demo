@@ -1,15 +1,18 @@
-FROM node:13.2-alpine
+FROM node:17-bullseye-slim
 
-MAINTAINER booink.work@gmail.com
+LABEL maintainer="booink <booink.work@gmail.com>"
 
 RUN mkdir /app
 WORKDIR /app
 
-RUN apk update && apk add python make g++
+RUN apt-get update -y \
+    && apt-get install -y \
+    python3 \
+    make \
+    g++
 
 COPY package.json yarn.lock ./
 
 RUN yarn install
 
 CMD ["yarn", "run", "dev"]
-

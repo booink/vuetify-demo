@@ -1,16 +1,25 @@
-FROM ruby:2.6.5-alpine
+FROM ruby:3.1-slim-bullseye
 
-MAINTAINER booink.work@gmail.com
+LABEL maintainer="booink <booink.work@gmail.com>"
 
 WORKDIR /app
 ENV TZ=Asia/Tokyo
 
-RUN apk add --no-cache build-base libxml2-dev libxslt-dev mysql-dev
+RUN apt-get update -y \
+    && apt-get install -y \
+    build-essential \
+    libmariadb-dev \
+    tzdata \
+    libffi-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev
 
 COPY Gemfile .
 COPY Gemfile.lock .
 
-RUN bundle install --without doc
+RUN bundle config set --local without 'doc' && bundle install
+
+COPY . /app
 
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
 
